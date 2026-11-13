@@ -1,0 +1,35 @@
+local Formulas = require("../src/shared/Rpg/Formulas")
+
+return function(t)
+	t.test("RPG: XP-Bedarf wächst mit der Stufe", function()
+		t.equal(Formulas.XpForLevel(1, 50, 1.5), 50)
+		t.equal(Formulas.XpForLevel(4, 50, 1.5), 400)
+	end)
+
+	t.test("RPG: Stufe aus Gesamt-XP", function()
+		local level, into, needed = Formulas.LevelFromXp(0, 50, 1.5, 50)
+		t.equal({ level, into, needed }, { 1, 0, 50 })
+		level, into, needed = Formulas.LevelFromXp(49, 50, 1.5, 50)
+		t.equal({ level, into }, { 1, 49 })
+		level, into, needed = Formulas.LevelFromXp(50, 50, 1.5, 50)
+		t.equal({ level, into, needed }, { 2, 0, 141 })
+		level, into, needed = Formulas.LevelFromXp(200, 50, 1.5, 50)
+		t.equal({ level, into }, { 3, 9 })
+	end)
+
+	t.test("RPG: Höchststufe wird nicht überschritten", function()
+		local level, into, needed = Formulas.LevelFromXp(1e12, 50, 1.5, 10)
+		t.equal({ level, into, needed }, { 10, 0, 0 })
+	end)
+
+	t.test("RPG: Schaden mit Stufe und Kombo", function()
+		t.equal(Formulas.AttackDamage(14, 1, 0.08, 1, 0.25), 14)
+		t.equal(Formulas.AttackDamage(14, 1, 0.08, 3, 0.25), 21)
+		t.equal(Formulas.AttackDamage(10, 11, 0.1, 1, 0.25), 20)
+	end)
+
+	t.test("RPG: Leben pro Stufe", function()
+		t.equal(Formulas.MaxHealth(1, 12), 100)
+		t.equal(Formulas.MaxHealth(6, 12), 160)
+	end)
+end

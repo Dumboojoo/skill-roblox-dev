@@ -1,0 +1,28 @@
+local CombatMath = require("../src/shared/Battlegrounds/CombatMath")
+
+return function(t)
+	t.test("Battlegrounds: Block wirkt nur von vorn", function()
+		local damage, blocked = CombatMath.ApplyBlock(20, true, 1, 0.8)
+		t.equal(math.floor(damage + 0.5), 4)
+		t.truthy(blocked)
+		damage, blocked = CombatMath.ApplyBlock(20, true, -0.5, 0.8)
+		t.equal(damage, 20)
+		t.falsy(blocked)
+		damage, blocked = CombatMath.ApplyBlock(20, false, 1, 0.8)
+		t.equal(damage, 20)
+		t.falsy(blocked)
+	end)
+
+	t.test("Battlegrounds: Kombo zählt hoch und beginnt nach Pause oder Ende neu", function()
+		t.equal(CombatMath.NextComboStep(0, 99, 0.9, 4), 1)
+		t.equal(CombatMath.NextComboStep(1, 0.4, 0.9, 4), 2)
+		t.equal(CombatMath.NextComboStep(3, 0.4, 0.9, 4), 4)
+		t.equal(CombatMath.NextComboStep(4, 0.4, 0.9, 4), 1)
+		t.equal(CombatMath.NextComboStep(2, 1.5, 0.9, 4), 1)
+	end)
+
+	t.test("Battlegrounds: Ulti-Leiste läuft nicht über", function()
+		t.equal(CombatMath.GainUltimate(0, 10, 0.5, 100), 5)
+		t.equal(CombatMath.GainUltimate(98, 10, 0.5, 100), 100)
+	end)
+end

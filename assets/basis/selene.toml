@@ -1,0 +1,7 @@
+std = "roblox"
+exclude = ["src/server/Packages/*"]
+
+[lints]
+# Mehrfach-Zuweisungen wie `local a, b = f()` mit ungenutztem b sind in Luau ueblich.
+unused_variable = "warn"
+shadowing = "allow"

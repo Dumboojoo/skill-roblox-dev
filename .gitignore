@@ -1,0 +1,8 @@
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+sourcemap.json
+/assets/**/build/
+*.rbxl.lock
+*.rbxlx.lock
