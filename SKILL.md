@@ -1,6 +1,6 @@
 ---
 name: roblox-spiele
-description: Entwickelt Roblox-Spiele wie ein professioneller Roblox-Entwickler – saubere Rojo-Projektstruktur, erweiterbarer Luau-Code, sicheres Speichern (DataStore über ProfileStore), Admin-Konsole auf Taste T (fly, god, invisible …), faire Spiele ohne Pay-to-Win, Weltbau direkt in Roblox Studio über MCP, eigene 3D-Modelle und Figuren mit einzeln beweglichen Körperteilen aus Blender, Texturen (Blender, PhotoCraft), Effekte (Partikel, Bildfolgen) und ein Abhak-Plan (PLAN.md), der immer mitgeführt wird. Enthält fertigen Beispielcode für Ego-Shooter (Block-Arme), Obby, Tower Defense, Simulator, Tycoon, Runden-/Minispiele, RPG/Nahkampf, Horror/Story, Rennen/Fahrzeuge, Open World, Dungeon, Survival/Crafting, Battlegrounds und Adventure sowie Module für Inventar, Monetarisierung und Bestenlisten. Verwende diesen Skill IMMER, wenn es um Roblox geht – ein neues Roblox-Spiel bauen, an einem bestehenden weiterarbeiten, Luau-Skripte schreiben oder reparieren, Roblox Studio, Rojo, DataStores, Gamepässe, Admin-Befehle, Maps, Spielmechaniken, Modelle, Texturen oder Effekte für Roblox – auch bei knappen Formulierungen wie „mach mir ein Roblox-Spiel", „bau einen Obby", „mein Tycoon speichert nicht", „füg einen Shop hinzu", „mach mir ein Monster in Blender", „der Treffer braucht einen Effekt" oder „mach am Spiel weiter".
+description: Entwickelt Roblox-Spiele wie ein professioneller Roblox-Entwickler – saubere Rojo-Projektstruktur, erweiterbarer Luau-Code, sicheres Speichern (DataStore), Admin-Konsole auf Taste T, faire Spiele ohne Pay-to-Win, Weltbau direkt in Roblox Studio über MCP, eigene 3D-Modelle und Figuren mit beweglichen Körperteilen aus Blender, Texturen und gezeichnete Effekte (PhotoCraft) und ein Abhak-Plan (PLAN.md). Enthält Beispielcode für 14 Genres (Ego-Shooter, Obby, Tower Defense, Simulator, Tycoon, Minispiele, RPG, Horror, Rennen, Open World, Dungeon, Survival, Battlegrounds, Adventure) sowie Module für Inventar, Monetarisierung und Bestenlisten. Verwende diesen Skill IMMER, wenn es um Roblox geht – neues Spiel bauen, an einem bestehenden weiterarbeiten, Luau-Skripte, Roblox Studio, Rojo, DataStores, Gamepässe, Maps, Modelle, Texturen oder Effekte – auch bei knappen Formulierungen wie „mach mir ein Roblox-Spiel", „bau einen Obby", „mein Tycoon speichert nicht" oder „mach mir ein Monster in Blender".
 ---
 
 # Roblox-Spiele entwickeln
@@ -140,11 +140,12 @@ Ist das MCP nicht verbunden: sag es klar, arbeite am Code weiter und gib dem Nut
 
 ## Eigene Modelle, Texturen und Effekte
 
-Blender, PhotoCraft und das Hochladen sind freiwillige Erweiterungen (`references/kreativ-einrichtung.md`). Vier Regeln gelten immer:
+Blender, PhotoCraft und das Hochladen sind freiwillige Erweiterungen (`references/kreativ-einrichtung.md`). Fünf Regeln gelten immer:
 
 - **Erst Blöcke und Spielgefühl, dann eigene Modelle.** Ein Modell ersetzt später einen Block, der schon funktioniert. Der Code der Genres sucht eigene Modelle an festen Stellen und nimmt sonst die Block-Version.
 - **Was sich bewegen soll, besteht aus Einzelteilen.** Monster, Tiere, Türen, Geschütze: jedes bewegliche Teil ein eigenes Objekt mit dem Drehpunkt am Gelenk, sprechend benannt (`Torso`, `Head`, `LeftUpperArm`, `Tail1`). So lässt sich in Roblox jedes Körperteil einzeln bewegen, per Code oder im Animations-Editor. Die Gelenke baut `assets/weltbau/rig_bauen.luau` aus dem Begleitzettel des Exports.
 - **Vor jedem Hochladen fragen.** Hochgeladenes bleibt dauerhaft im Roblox-Konto des Nutzers und wird von Roblox geprüft. Zeig, was hochgeladen wird, und warte auf ein Ja.
+- **Mit den eigenen Fehlern rechnen.** Der erste Versuch ist meist zu schlicht; Flächen zeigen nach innen, flimmern, schweben oder verschwinden nach einer Änderung. `references/modelle-blender.md` führt die Liste, `ex.check()` findet das meiste. Jeder neue Fehler wird eine Regel im Plan und, wenn messbar, eine Prüfung im Skript.
 - **Ansehen statt annehmen.** Jedes Modell und jedes Bild vor dem Export ansehen (Bild der 3D-Ansicht, Vorschau-Datei), nach dem Einbau in Studio noch einmal (`screen_capture`).
 
 Effekt-Bilder sind **weiß und in Schichten** (Schein, Körper, Rand, Kern); die Farbe bekommt jede Schicht erst im Spiel. Nichts zeichnen, was wie Blut aussieht.

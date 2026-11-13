@@ -183,15 +183,7 @@ def check_creative() -> None:
         blender is not None,
         "Blender (3D-Modelle, Texturen backen)",
         version(blender) if blender else "",
-        "Installieren: https://www.blender.org/download (4.5 LTS oder neuer)",
-    )
-    uv = shutil.which("uvx") or shutil.which("uv")
-    extra(
-        uv is not None,
-        "uv (startet die Blender-Verbindung)",
-        "",
-        'Windows (PowerShell): powershell -c "irm https://astral.sh/uv/install.ps1 | iex"\n'
-        "Mac: brew install uv",
+        "Installieren: https://www.blender.org/download (5.1 oder neuer, fuer die offizielle Verbindung)",
     )
     blender_mcp = mcp_connected("blender")
     extra(
@@ -200,8 +192,8 @@ def check_creative() -> None:
         "",
         "Nicht pruefbar (Befehl 'claude' nicht gefunden)."
         if blender_mcp is None
-        else "Eintragen: claude mcp add blender uvx blender-mcp\n"
-        "In Blender das Add-on addon.py installieren und im Reiter BlenderMCP verbinden.",
+        else "Offizielle Verbindung einrichten: https://www.blender.org/lab/mcp-server/\n"
+        "Add-on zweimal in Blender ziehen, 'Online-Zugriff erlauben' einschalten.",
     )
     photocraft = find_photocraft()
     extra(

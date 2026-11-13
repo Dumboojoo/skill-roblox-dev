@@ -245,6 +245,90 @@ def simplify(obj: bpy.types.Object, target: int) -> int:
     return triangles(obj)
 
 
+def flipped_faces(obj: bpy.types.Object) -> tuple[int, bool]:
+    """Zaehlt Flaechen, die nach innen zeigen. Rueckgabe: (Anzahl, Form ist geschlossen).
+
+    Roblox zeichnet nur die Vorderseite einer Flaeche: Was nach innen zeigt, ist im Spiel
+    unsichtbar (Loch im Modell). Bei offenen Formen (Ebene, Schale) ist "innen" nicht
+    eindeutig; dort ist das Ergebnis nur ein Verdacht.
+    """
+    bm = bmesh.new()
+    bm.from_mesh(obj.data)
+    bm.faces.ensure_lookup_table()
+    before = [face.normal.copy() for face in bm.faces]
+    closed = len(bm.faces) > 0 and all(edge.is_manifold for edge in bm.edges)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.normal_update()
+    count = sum(1 for face, old in zip(bm.faces, before) if face.normal.dot(old) < 0)
+    bm.free()
+    # Zeigt die Mehrheit "falsch", hat sich eher die Neuberechnung geirrt (offene Form): dann die Minderheit melden.
+    if not closed and count > len(before) / 2:
+        count = len(before) - count
+    return count, closed
+
+
+def fix_normals(obj: bpy.types.Object) -> int:
+    """Dreht alle Flaechen nach aussen. Gibt zurueck, wie viele umgedreht wurden."""
+    count, _ = flipped_faces(obj)
+    bm = bmesh.new()
+    bm.from_mesh(obj.data)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(obj.data)
+    bm.free()
+    obj.data.update()
+    return count
+
+
+def split(
+    obj: bpy.types.Object,
+    point: tuple[float, float, float],
+    normal: tuple[float, float, float],
+    names: tuple[str, str] | None = None,
+) -> tuple[bpy.types.Object, bpy.types.Object]:
+    """Schneidet ein Objekt an einer Ebene in zwei Haelften und verschliesst beide Schnittflaechen.
+
+    Fuer Dinge, die im Spiel zerbrechen oder zerschnitten werden: Schneiden waehrend des Spiels
+    ist fuer Roblox zu teuer. Also VORHER in Blender schneiden (z. B. vier Schnittrichtungen),
+    alle Haelften exportieren und im Spiel nur die passenden einblenden.
+    Das Original bleibt erhalten. `point` und `normal` in Weltkoordinaten.
+    """
+    bpy.context.view_layer.update()
+    world = obj.matrix_world
+    local_point = world.inverted() @ Vector(point)
+    local_normal = (world.inverted().to_3x3().transposed().inverted() @ Vector(normal)).normalized()
+    names = names or (obj.name + "_A", obj.name + "_B")
+    halves = []
+    for name, keep_positive in zip(names, (True, False)):
+        bm = bmesh.new()
+        bm.from_mesh(obj.data)
+        result = bmesh.ops.bisect_plane(
+            bm,
+            geom=list(bm.verts) + list(bm.edges) + list(bm.faces),
+            plane_co=local_point,
+            plane_no=local_normal,
+            clear_inner=keep_positive,
+            clear_outer=not keep_positive,
+        )
+        cut_edges = [item for item in result["geom_cut"] if isinstance(item, bmesh.types.BMEdge)]
+        if cut_edges:
+            bmesh.ops.holes_fill(bm, edges=cut_edges)
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+        mesh = bpy.data.meshes.new(name)
+        bm.to_mesh(mesh)
+        bm.free()
+        for material in obj.data.materials:
+            mesh.materials.append(material)
+        half = bpy.data.objects.new(name, mesh)
+        half.matrix_world = world.copy()
+        bpy.context.scene.collection.objects.link(half)
+        for key in obj.keys():
+            if key.startswith("rbx_"):
+                half[key] = obj[key]
+        halves.append(half)
+    bpy.context.view_layer.update()
+    return halves[0], halves[1]
+
+
 def shade(obj: bpy.types.Object, smooth: bool) -> None:
     for polygon in obj.data.polygons:
         polygon.use_smooth = smooth

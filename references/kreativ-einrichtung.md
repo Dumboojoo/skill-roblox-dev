@@ -15,23 +15,17 @@ Lies das, wenn zum ersten Mal ein eigenes Modell, eine Textur oder ein Effekt-Bi
 
 Fehlt ein Programm, sag es dem Nutzer in einem Satz und nimm den Weg, der geht. Nicht stillschweigend etwas anderes bauen als besprochen.
 
-## 1. Blender verbinden (Standard: Community-Verbindung `blender-mcp`)
+## 1. Blender verbinden (Standard: die offizielle Verbindung)
 
-Blender selbst: blender.org, Version 4.5 LTS oder neuer.
+Standard ist die **offizielle Verbindung der Blender-Entwickler (Blender Lab)**. Sie ist kostenlos und braucht **Blender 5.1 oder neuer** (blender.org).
 
-Die Community-Verbindung (`ahujasid/blender-mcp`) ist der Standard, weil sie zusätzlich eine freie Textur- und Modell-Bibliothek (Poly Haven) mitbringt.
+1. Anleitung und Add-on: `https://www.blender.org/lab/mcp-server/`. Am einfachsten gibt der Nutzer Claude diese Seite und sagt: „Richte die offizielle Blender-Verbindung ein und verbinde sie mit meinem Blender." Die Seite ist maßgeblich, falls hier etwas veraltet ist.
+2. Braucht Claude dabei Hilfe, ist es eines von zwei Dingen:
+   - Das Add-on von der Seite **zweimal** in das Blender-Fenster ziehen: Das erste Mal trägt nur die Quelle von Blender ein, das zweite Mal installiert es.
+   - In den Einstellungen von Blender **„Online-Zugriff erlauben"** einschalten, sonst startet das Add-on nicht.
+3. Steht in Blender „Server is running", ist die Verbindung da. Claude Code neu starten; `claude mcp list` zeigt den Eintrag.
 
-1. **`uv` installieren** (startet die Verbindung). Windows, in PowerShell:
-   `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
-   Mac: `brew install uv`. Danach das Terminal neu öffnen.
-2. **In Claude Code eintragen:** `claude mcp add blender uvx blender-mcp`
-3. **Add-on in Blender:** Die Datei `addon.py` aus dem Projekt `ahujasid/blender-mcp` (GitHub) herunterladen. In Blender: Bearbeiten → Einstellungen → Add-ons → „Von Datenträger installieren" → `addon.py` wählen → Haken bei „Blender MCP" setzen.
-4. **Verbinden:** In der 3D-Ansicht `N` drücken → Reiter „BlenderMCP" → „Connect to Claude" (bzw. „Start"). Das muss nach jedem Blender-Start neu geklickt werden.
-5. Claude Code neu starten. `claude mcp list` zeigt `blender` als verbunden.
-
-Die Schritte stammen aus der Projektbeschreibung und können sich ändern. Weicht etwas ab, gilt die README des Projekts.
-
-**Werkzeuge, die der Skill braucht:** Python in Blender ausführen (`execute_blender_code`) und ein Bild der 3D-Ansicht (`get_viewport_screenshot`). Dazu Szene lesen (`get_scene_info`, `get_object_info`). Heißen die Werkzeuge anders: in der Werkzeugliste nach „execute" und „screenshot" suchen.
+**Werkzeuge, die der Skill braucht:** Python in Blender ausführen, die Szene lesen und ein Bild der 3D-Ansicht holen. Die genauen Namen stehen in der Werkzeugliste der Verbindung (nach „execute"/„python" und „screenshot"/„viewport" suchen).
 
 **Erster Test nach dem Verbinden:**
 
@@ -43,17 +37,19 @@ rb.new_scene(); rb.box("Test", (2, 2, 2), center=(0, 0, 1))
 
 Danach ein Bild der 3D-Ansicht holen. Steht dort ein Würfel, läuft alles. Der allererste Befehl nach dem Start kann hängen: einfach noch einmal schicken.
 
-**Extras der Community-Verbindung**
+Die `rbx_`-Helfer wurden mit Blender 4.5 erprobt, noch nicht mit 5.1. Meldet ein Helfer unter 5.1 einen unbekannten Befehl oder Parameter: die Stelle an die neue Schnittstelle anpassen (Blender-Handbuch zur Python-API nachschlagen) und die Korrektur im Skill nachziehen.
 
-| Extra | Nutzen | Vorsicht |
+**Sicherheit:** Blender führt jeden Code aus, den Claude schreibt, ohne Schutzhülle. Die Blender-Entwickler empfehlen dafür einen Rechner ohne heikle Daten. Mindestens gilt: vor größeren Schritten die Arbeit speichern, und keinen Code ausführen, der außerhalb des Spielprojekts Dateien ändert oder löscht.
+
+**Wahlweise: die Community-Verbindung `blender-mcp`** (`ahujasid/blender-mcp`). Nur sinnvoll, wenn ihre Extras gebraucht werden oder ein älteres Blender (ab 3.0) bleiben soll. Einrichtung: `uv` installieren (Windows: `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`), `claude mcp add blender uvx blender-mcp`, die Datei `addon.py` des Projekts in Blender als Add-on installieren und in der 3D-Ansicht unter `N` → „BlenderMCP" verbinden. Ihre Werkzeuge heißen `execute_blender_code`, `get_viewport_screenshot`, `get_scene_info`. Die `rbx_`-Helfer laufen mit beiden Verbindungen.
+
+| Extra der Community-Verbindung | Nutzen | Vorsicht |
 |---|---|---|
 | Poly Haven (im Add-on anhaken) | freie Texturen, HDRIs, Modelle (CC0, frei verwendbar) | Texturen auf 512 oder 1024 verkleinern |
 | Sketchfab (braucht Konto und Schlüssel) | große Modell-Sammlung | **Lizenz jedes Modells prüfen**, viele sind nicht frei |
 | Hyper3D / Hunyuan3D (KI-Modelle, teils kostenpflichtig) | schnelle Deko | ein Stück, viele Flächen: nur als Deko nach dem Vereinfachen, nie für bewegliche Figuren |
 
 Diese Extras nur nutzen, wenn der Nutzer sie selbst eingeschaltet hat. Keine Schlüssel für ihn einrichten.
-
-**Ausweichweg: die offizielle Verbindung der Blender-Entwickler.** Sie kann dasselbe Wesentliche (Python ausführen, Szene lesen, Bild der Ansicht), aber ohne die Bibliotheken. In Claude Desktop: Einstellungen → Connectors → „Blender" einschalten. Für Claude Code beschreibt die Anleitung von Blender Lab (projects.blender.org, `lab/blender_mcp`) den aktuellen Weg und die nötige Blender-Version. Die `rbx_`-Skripte des Skills laufen mit beiden Verbindungen.
 
 **Nie beide Verbindungen gleichzeitig am selben Blender.** Es kann immer nur ein Programm mit einer Blender-Sitzung sprechen; das zweite scheitert ohne Meldung.
 
@@ -141,8 +137,9 @@ Immer die Quelle speichern (`rb.save(r"<spiel>/quellen/Monster.blend")`), sonst 
 
 | Zeichen | Ursache | Abhilfe |
 |---|---|---|
-| Blender-Werkzeuge fehlen in Claude | Verbindung nicht eingetragen oder Claude nicht neu gestartet | `claude mcp list`, Schritt 2 und 5 |
-| Befehl an Blender läuft ins Leere | Add-on nicht verbunden | in Blender `N` → BlenderMCP → verbinden |
+| Blender-Werkzeuge fehlen in Claude | Verbindung nicht eingetragen oder Claude nicht neu gestartet | `claude mcp list`, Abschnitt 1 |
+| Add-on startet nicht | „Online-Zugriff erlauben" ist aus, oder das Add-on wurde nur einmal hineingezogen | Abschnitt 1, Schritt 2 |
+| Befehl an Blender läuft ins Leere | Server läuft nicht | in Blender prüfen, ob „Server is running" steht |
 | `ModuleNotFoundError: rbx_base` | Pfad fehlt | `sys.path.insert(0, r"<skill>/assets/kreativ/blender")` zuerst ausführen |
 | Blender stürzt beim Rendern ab | Grafikkarte im Hintergrund | die `rbx_`-Helfer rechnen bewusst auf dem Prozessor; eigene Render-Aufrufe ebenso einstellen (`scene.cycles.device = "CPU"`) |
 | Upload abgelehnt: Ordner | `export/` nicht freigegeben | Schritt 3 |

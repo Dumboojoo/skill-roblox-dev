@@ -33,6 +33,8 @@ TRIANGLES_ERROR = 20000
 TOTAL_TRIANGLES_WARN = 30000
 NAME_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
 TOLERANCE = 0.02
+FLICKER_FACES_MAX = 6000  # darueber wird die Flimmer-Suche zu langsam und uebersprungen
+THIN_STUDS = 0.08  # duennere Teile sieht man im Spiel kaum
 
 
 def to_roblox(vector: Vector) -> list[float]:
@@ -62,6 +64,63 @@ def _color(obj: bpy.types.Object) -> list[int]:
 
 def _inside(point: Vector, low: Vector, high: Vector, margin: float) -> bool:
     return all(low[i] - margin <= point[i] <= high[i] + margin for i in range(3))
+
+
+def _flicker(meshes: list[bpy.types.Object]) -> list[str]:
+    """Sucht Flaechen, die deckungsgleich in derselben Ebene liegen und in dieselbe Richtung zeigen.
+
+    Solche Flaechen "kaempfen" im Spiel um denselben Platz und flimmern. Abhilfe: eine der beiden
+    um 0.05 Studs versetzen oder die ueberfluessige loeschen.
+    """
+    groups: dict[tuple, list[tuple[str, tuple[float, float, float, float], float]]] = {}
+    for obj in meshes:
+        world = obj.matrix_world
+        rotation = world.to_3x3()
+        for polygon in obj.data.polygons:
+            normal = (rotation @ polygon.normal).normalized()
+            points = [world @ obj.data.vertices[index].co for index in polygon.vertices]
+            distance = normal.dot(points[0])
+            key = (round(normal.x, 2), round(normal.y, 2), round(normal.z, 2), round(distance / 0.02))
+            # Flaeche in ihrer Ebene als Rechteck annaehern (zwei Achsen quer zur Normale)
+            helper = Vector((0, 0, 1)) if abs(normal.z) < 0.9 else Vector((1, 0, 0))
+            u_axis = normal.cross(helper).normalized()
+            v_axis = normal.cross(u_axis)
+            us = [point.dot(u_axis) for point in points]
+            vs = [point.dot(v_axis) for point in points]
+            groups.setdefault(key, []).append((obj.name, (min(us), max(us), min(vs), max(vs)), polygon.area))
+
+    found: dict[tuple[str, str], int] = {}
+    for faces in groups.values():
+        if len(faces) < 2:
+            continue
+        for first in range(len(faces)):
+            name_a, box_a, area_a = faces[first]
+            for second in range(first + 1, len(faces)):
+                name_b, box_b, area_b = faces[second]
+                width = min(box_a[1], box_b[1]) - max(box_a[0], box_b[0])
+                height = min(box_a[3], box_b[3]) - max(box_a[2], box_b[2])
+                if width <= 0.02 or height <= 0.02:
+                    continue
+                if width * height < 0.25 * min(area_a, area_b):
+                    continue
+                pair = (name_a, name_b) if name_a <= name_b else (name_b, name_a)
+                found[pair] = found.get(pair, 0) + 1
+    messages = []
+    for (name_a, name_b), count in sorted(found.items()):
+        where = f'in "{name_a}"' if name_a == name_b else f'zwischen "{name_a}" und "{name_b}"'
+        messages.append(f"{count} deckungsgleiche Flaeche(n) {where}: Das flimmert im Spiel. Eine Flaeche um 0.05 Studs versetzen oder loeschen.")
+    return messages
+
+
+def _all_inside(inner: bpy.types.Object, outer: bpy.types.Object) -> bool:
+    """True, wenn wirklich jeder Eckpunkt von `inner` im Inneren der Form von `outer` liegt."""
+    to_outer = outer.matrix_world.inverted() @ inner.matrix_world
+    for vert in inner.data.vertices:
+        point = to_outer @ vert.co
+        hit, location, normal, _ = outer.closest_point_on_mesh(point)
+        if not hit or (point - location).dot(normal) > -0.005:
+            return False  # dieser Punkt liegt auf oder ausserhalb der Oberflaeche
+    return True
 
 
 def ground(objects: list[bpy.types.Object] | None = None) -> None:
@@ -122,11 +181,49 @@ def check(objects: list[bpy.types.Object] | None = None, quiet: bool = False) ->
         scale = obj.matrix_world.to_scale()
         if any(abs(value - 1.0) > 0.001 for value in scale):
             errors.append(f'"{obj.name}": Skalierung ist nicht 1 ({scale.x:.2f}, {scale.y:.2f}, {scale.z:.2f}). Groesse in die Form uebernehmen.')
+        flipped, closed = rb.flipped_faces(obj)
+        if flipped and closed:
+            errors.append(f'"{obj.name}": {flipped} Flaeche(n) zeigen nach innen. Roblox zeichnet sie nicht (Loch im Modell). rb.fix_normals(obj) aufrufen.')
+        elif flipped:
+            warnings.append(f'"{obj.name}": {flipped} Flaeche(n) zeigen vermutlich in die falsche Richtung (offene Form). Im Bild pruefen; rb.fix_normals(obj) richtet sie aus.')
+        own_low, own_high = rb.bounds([obj])
+        thinnest = min(own_high[i] - own_low[i] for i in range(3))
+        if 0 < thinnest < THIN_STUDS:
+            warnings.append(f'"{obj.name}": nur {thinnest:.2f} Studs duenn. Im Spiel kaum zu sehen: kraeftiger bauen.')
         if len([material for material in obj.data.materials if material is not None]) > 1:
             warnings.append(f'"{obj.name}": mehrere Materialien. In Roblox bekommt ein Teil EINE Farbe bzw. Textur; sonst Teil aufteilen.')
     info.append(f"Dreiecke gesamt: {total} in {len(meshes)} Teil(en)")
     if total > TOTAL_TRIANGLES_WARN:
         warnings.append(f"{total} Dreiecke insgesamt sind viel fuer ein einzelnes Modell (Handy!).")
+
+    # Flimmern: deckungsgleiche Flaechen
+    if total <= FLICKER_FACES_MAX:
+        warnings.extend(_flicker(meshes))
+    else:
+        info.append(f"Flimmer-Suche uebersprungen (mehr als {FLICKER_FACES_MAX} Dreiecke).")
+
+    # Schwebende und verschluckte Teile (passiert leicht, wenn nachtraeglich etwas verschoben oder vergroessert wird)
+    if len(meshes) > 1:
+        boxes = {obj.name: rb.bounds([obj]) for obj in meshes}
+        for obj in meshes:
+            own_low, own_high = boxes[obj.name]
+            touches = own_low.z <= TOLERANCE * 2
+            swallowed_by = None
+            for other in meshes:
+                if other is obj:
+                    continue
+                other_low, other_high = boxes[other.name]
+                if all(own_low[i] <= other_high[i] + TOLERANCE and other_low[i] <= own_high[i] + TOLERANCE for i in range(3)):
+                    touches = True
+                if all(other_low[i] - TOLERANCE <= own_low[i] and own_high[i] <= other_high[i] + TOLERANCE for i in range(3)):
+                    volume_own = max((own_high - own_low).x * (own_high - own_low).y * (own_high - own_low).z, 1e-9)
+                    volume_other = (other_high - other_low).x * (other_high - other_low).y * (other_high - other_low).z
+                    if volume_other > volume_own * 1.5 and _all_inside(obj, other):
+                        swallowed_by = other.name
+            if not touches:
+                warnings.append(f'"{obj.name}": schwebt frei (beruehrt weder den Boden noch ein anderes Teil). Wurde etwas verschoben und dieses Teil vergessen?')
+            if swallowed_by:
+                warnings.append(f'"{obj.name}": steckt ganz in "{swallowed_by}" und ist von aussen nicht zu sehen. Ist es darin verschwunden (z. B. nach dem Vergroessern)? Im Bild pruefen.')
 
     # Figur aus Einzelteilen
     rig_parts = [obj for obj in rig.parts(meshes)]

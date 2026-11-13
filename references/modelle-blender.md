@@ -2,7 +2,7 @@
 
 Lies das, bevor du ein Modell in Blender baust oder ein Blender-Modell in Studio einsetzt. Einrichtung der Verbindungen: `references/kreativ-einrichtung.md`.
 
-**Inhalt:** Wann Blender · Ablauf · Maße und Richtungen · Bewegliche Modelle · Die Helfer · Prüfen · Export · Einbau in Studio · Bewegung im Spiel · Wo Modelle andocken · Fremde Modelle · Typische Fehler
+**Inhalt:** Wann Blender · Ablauf · **Fehler, die Claude dabei macht** · Maße und Richtungen · Bewegliche Modelle · Die Helfer · Prüfen · Vom Gespräch zum Skript (Bausätze, Zerbrechliches) · Export · Einbau in Studio · Bewegung im Spiel · Wo Modelle andocken · Fremde Modelle · Typische Fehler
 
 ## Wann Blender, wann Blöcke
 
@@ -20,6 +20,28 @@ Stil: kantig und klar, wenige Flächen, passend zur Block-Welt. Ein Monster mit 
 6. **Nutzer fragen**, dann hochladen und einfügen (`kreativ-einrichtung.md`, Abschnitt 3).
 7. **Einbauen** in Studio: `assets/weltbau/rig_bauen.luau` (bewegliche Figur) oder `modell_einbauen.luau` (alles andere).
 8. **Ansehen** in Studio (`screen_capture`), bei Figuren mit Gelenk-Probe. Nummer in `PLAN.md` eintragen.
+
+## Fehler, die Claude dabei macht
+
+Diese Fehler passieren dir verlässlich. Sie sind bekannt, also rechne mit ihnen, statt das erste Ergebnis für fertig zu halten. Wo es geht, findet `ex.check()` sie von selbst.
+
+| Fehler | Woran man ihn erkennt | Was tun | Findet `ex.check()` |
+|---|---|---|---|
+| **Der erste Versuch ist zu schlicht.** Formen stimmen grob, aber es fehlt an Einzelheiten: wirkt wie ein Platzhalter. | Bild ansehen und ehrlich fragen: Würde das in einem fertigen Spiel so stehen? | Einen zweiten Durchgang einplanen: Kanten brechen, Stufen, Sockel, Ränder, zweite Farbe, kleine Unregelmäßigkeiten. Reicht das nicht, **neu aufbauen statt flicken**. Sagt der Nutzer „zu wenig Detail", nicht verteidigen. | nein |
+| **Flächen zeigen nach innen.** Roblox zeichnet nur die Vorderseite einer Fläche; Teile des Modells sind im Spiel einfach weg. | In Blender sieht es richtig aus, in Studio fehlen Flächen (Löcher, durchsichtige Wände). | `rb.fix_normals(obj)`. Nach jedem eigenen Mesh-Bau, Spiegeln oder Schneiden prüfen. | ja, als Fehler |
+| **Flimmern.** Zwei Flächen liegen an derselben Stelle und kämpfen um den Platz. | Flackernde, gestreifte Fläche, besonders bei Kamerabewegung. | Eine Fläche um **0.05 Studs** (ein Zwanzigstel) versetzen oder die überflüssige löschen. Nie zwei Formen bündig aufeinander enden lassen. | ja, als Hinweis |
+| **Vergessene Teile beim Verschieben.** Der Baumstamm wandert, die Krone bleibt in der Luft stehen. | Schwebende Teile im Bild. | Was zusammengehört, hängt an einem Eltern-Objekt oder wird verschmolzen; verschoben wird immer das Ganze. Nach jeder Änderung ein Bild ansehen. | ja („schwebt frei") |
+| **Verschluckte Teile beim Vergrößern.** Die Insel wird größer, der Fels darauf steckt plötzlich im Boden. | Etwas fehlt im Bild, das vorher da war. | Nach jeder Größenänderung alles neu ausmessen, was darauf oder daran steht (`rb.bounds`), und neu aufsetzen. | ja („steckt ganz in …") |
+| **Zu dünn, zu blass.** Das Schwert sieht aus wie ein Stock. | Aus Spielentfernung kaum zu erkennen. | Übertreiben: dicker, breiter, heller, als es „richtig" wäre. Spielmodelle sind Karikaturen. | teils (unter 0.08 Studs) |
+| **„Fertig" sagen, ohne hinzusehen.** | – | Nach jedem größeren Schritt ein Bild ansehen, vor dem Export von mehreren Seiten. Erst dann dem Nutzer zeigen. | nein |
+
+**Jeder Fehler wird eine Regel, und jede Regel kommt in ein Skript.** Tritt ein neuer Fehler auf, reicht es nicht, ihn einmal zu beheben:
+
+1. Im Spielprojekt in `PLAN.md` unter „Entscheidungen" als Regel festhalten (ein Satz, mit dem Anlass).
+2. Wenn er sich messen lässt: als Prüfung in das Bau-Skript des Modells aufnehmen (siehe „Vom Gespräch zum Skript"), sodass der Lauf abbricht oder warnt.
+3. Pflegt der Nutzer den Skill selbst und ist der Fehler allgemein: die Prüfung in `assets/kreativ/blender/rbx_export.py` (`check`) ergänzen und in dieser Tabelle nachtragen.
+
+So wird derselbe Fehler nur einmal behoben.
 
 ## Maße und Richtungen
 
@@ -79,7 +101,7 @@ import rbx_base as rb, rbx_rig as rig, rbx_export as ex
 
 | Modul | Wichtigste Funktionen |
 |---|---|
-| `rbx_base` | `new_scene()` · `box`, `cylinder`, `cone`, `sphere` (mit `taper`, `bevel`) · `join` · `mirror_x` · `set_origin` · `material(name, (r, g, b))` + `paint` · `uv_box` · `simplify(obj, dreiecke)` · `preview(pfad, view=…)` · `save(pfad)` |
+| `rbx_base` | `new_scene()` · `box`, `cylinder`, `cone`, `sphere` (mit `taper`, `bevel`) · `join` · `mirror_x` · `set_origin` · `material(name, (r, g, b))` + `paint` · `uv_box` · `simplify(obj, dreiecke)` · `fix_normals(obj)` · `split(obj, point, normal)` · `preview(pfad, view=…)` · `save(pfad)` |
 | `rbx_rig` | `part(name, size, joint, offset, parent, mat, shape)` · `as_part(obj, joint, parent)` · `attachment(name, position, parent)` · `mirror_chain(teil, "Left", "Right")` · `pose_test(pfad)` |
 | `rbx_export` | `ground()` · `check()` · `export(name, ordner)` |
 | `rbx_texture` | `unwrap` · `bake_color` · `bake` · `apply` (siehe `texturen-photocraft.md`) |
@@ -113,7 +135,46 @@ Bilder ansehen, nicht nur Zahlen lesen:
 
 Bei der Gelenk-Probe achten auf: Dreht sich das Teil um das Gelenk (richtig) oder um die eigene Mitte (Ursprung falsch)? Reißt etwas ab oder klafft eine Lücke (zu wenig Überlappung)? Stößt ein Teil durch ein anderes (Form kürzen)?
 
-`ex.check()` meldet Fehler (Export wird verweigert) und Hinweise: falsche Namen, gedrehte oder skalierte Teile, lose Meshes, mehrere Wurzeln, Gelenk abseits der Form, Teil berührt sein Eltern-Teil nicht, zu viele Dreiecke, steht nicht auf dem Boden.
+`ex.check()` meldet Fehler (Export wird verweigert) und Hinweise: falsche Namen, gedrehte oder skalierte Teile, **nach innen zeigende Flächen**, **deckungsgleiche Flächen (Flimmern)**, **schwebende und verschluckte Teile**, sehr dünne Teile, lose Meshes, mehrere Wurzeln, Gelenk abseits der Form, Teil berührt sein Eltern-Teil nicht, zu viele Dreiecke, steht nicht auf dem Boden. Ein Hinweis ist kein Freibrief: jeden ansehen und entweder beheben oder begründen.
+
+## Vom Gespräch zum Skript
+
+Für ein einzelnes Modell reicht das Gespräch: Schritt ausführen, Bild ansehen, nachbessern. Sobald etwas wiederholbar sein soll (eine ganze Karte, viele ähnliche Teile, spätere Änderungen), gehört der Bau in **ein Skript im Spielprojekt**: `quellen/blender/<name>.py`.
+
+```python
+"""Arena. Ausfuehren: blender -b --factory-startup --python quellen/blender/arena.py"""
+import os, sys
+sys.path.insert(0, r"<skill>/assets/kreativ/blender")
+import rbx_base as rb, rbx_export as ex
+
+# --- Alle Masse stehen hier oben. Aendern, neu ausfuehren, fertig. ---
+SITZREIHEN = 8
+RADIUS = 40
+WANDHOEHE = 12
+
+def build():
+    rb.new_scene()
+    ...
+
+build()
+ex.ground()
+ex.export("Arena", os.path.join(os.path.dirname(__file__), "..", "..", "export"))
+```
+
+- **Jede Größe ist eine Zahl am Anfang der Datei.** „Mach zwölf Sitzreihen" ist dann eine geänderte Zahl; Treppen, Türme und Wände leiten sich daraus ab.
+- **Blender muss dafür nicht offen sein:** Mit `-b` läuft das Skript ohne Fenster in Sekunden und exportiert gleich. Die Verbindung zu Blender braucht man nur zum Ansehen und Ausprobieren.
+- Das Skript ist die Quelle des Modells. Wer es hat, kann das Modell jederzeit neu erzeugen; `ex.check()` läuft bei jedem Export mit, und eigene Regeln des Projekts kommen als weitere Prüfungen dazu.
+- Als Vorlage dient `beispiel_monster.py`.
+
+**Eine Zone ist ein Bausatz, kein einzelnes Modell.** Für große Gebiete nicht eine riesige Landschaft bauen, sondern einen Satz Teile (Felsen in drei Größen, Bäume, Mauerstück, Tor, Berg-Segment), jedes als eigenes Modell exportiert. Platziert werden sie in Studio (`execute_luau`) oder vom Spielcode. Varianten (andere Farben, andere Formen) sind dann nur eine Liste von Zahlen und Farben im Skript. Das hält jedes Teil klein, und die Welt bleibt umbaubar.
+
+**Zerbrechliches wird vorher geschnitten.** Ein Modell während des Spiels zu zerschneiden ist für Roblox zu teuer. Deshalb in Blender vorab schneiden und die Hälften mit exportieren:
+
+```python
+a, b = rb.split(vase, point=(0, 0, 1.7), normal=(0.3, 0, 1))    # schraeger Schnitt, beide Schnittflaechen verschlossen
+```
+
+Bewährt sind vier Schnittrichtungen je Gegenstand (waagerecht, senkrecht, zwei Schrägen), also acht Scherben. Im Spiel ist das ganze Modell sichtbar; beim Treffer wählt der Code den Schnitt, der am besten zur Schlagrichtung passt, blendet das Ganze aus und die zwei passenden Hälften ein (unverankert, mit einem kleinen Stoß). Es sieht aus, als hätte der Spieler geschnitten. Die Hälften gleich benennen (`Vase_Cut1_A`, `Vase_Cut1_B`, …), damit der Code sie am Namen findet.
 
 ## Export und Begleitzettel
 
@@ -174,7 +235,7 @@ Für Waffen in Blender die Form verschmelzen (`rb.join`), mit `rig.as_part(obj, 
 
 ## Fremde Modelle (Bibliothek, KI-Generator)
 
-Poly Haven, Sketchfab und die KI-Generatoren der Community-Verbindung liefern meist **ein Stück mit sehr vielen Flächen**.
+Poly Haven, Sketchfab und die KI-Generatoren (Extras der wahlweisen Community-Verbindung) liefern meist **ein Stück mit sehr vielen Flächen**.
 
 - Nur als **unbewegte Deko**. Figuren, die sich bewegen sollen, immer selbst in Einzelteilen bauen.
 - **Vereinfachen:** `rb.simplify(obj, 1500)`, danach Bild ansehen. Sieht es zerfressen aus, eine höhere Zahl wählen oder selbst nachbauen.
@@ -196,3 +257,5 @@ Poly Haven, Sketchfab und die KI-Generatoren der Community-Verbindung liefern me
 | Figur versinkt oder schwebt | nicht auf dem Boden gebaut | `ex.ground()` vor dem Export |
 | Beine rutschen über den Boden | Schrittlänge passt nicht | Attribut `Tempo` anpassen |
 | Modell in Studio grau | Farben nicht gesetzt | `Colors = true` oder Textur angeben |
+| Flächen fehlen in Studio | Flächen zeigen nach innen | `rb.fix_normals(obj)`, neu exportieren |
+| Fläche flackert | zwei Flächen deckungsgleich | eine um 0.05 Studs versetzen |

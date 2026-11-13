@@ -51,7 +51,7 @@ Hinweise:
 - Das Backen rechnet auf dem Prozessor. 512 dauert Sekunden, 1024 deutlich länger.
 - Mit Textur in Studio `Colors = false` setzen: Die Farbe kommt dann aus dem Bild.
 
-**Bibliothek statt selbst backen:** Mit der Community-Verbindung liefert Poly Haven fertige, freie Texturen (Stein, Holz, Metall, Stoff) samt Normal- und Rauheits-Karte. Auf 512 oder 1024 verkleinern. Für kachelnde Flächen in Blender `rb.uv_box(obj, studs_per_tile=4)` verwenden: Eine Kachel entspricht dann 4 Studs.
+**Bibliothek statt selbst backen:** Mit der wahlweisen Community-Verbindung (`kreativ-einrichtung.md`) liefert Poly Haven fertige, freie Texturen (Stein, Holz, Metall, Stoff) samt Normal- und Rauheits-Karte. Auf 512 oder 1024 verkleinern. Für kachelnde Flächen in Blender `rb.uv_box(obj, studs_per_tile=4)` verwenden: Eine Kachel entspricht dann 4 Studs.
 
 ## Veredeln in PhotoCraft
 

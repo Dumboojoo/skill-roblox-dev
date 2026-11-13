@@ -2,6 +2,7 @@
 
 Die Arbeitsdateien zum späteren Weiterbearbeiten:
 
+- `blender/<name>.py` – Bau-Skripte: erzeugen ein Modell jederzeit neu (Maße stehen als Zahlen am Anfang)
 - `<Name>.blend` – Blender-Szenen
 - PhotoCraft-Dokumente mit allen Ebenen
 
