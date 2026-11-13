@@ -56,8 +56,8 @@ Neues Projekt zum ersten Mal: In Studio eine leere Baseplate öffnen, verbinden,
 | Skripte doppelt in Studio | alte, von Hand angelegte Skripte in ServerScriptService/StarterPlayerScripts löschen |
 | Welt nach Verbinden weg | `default.project.json` verwaltet Workspace (darf es nicht; siehe `assets/basis`) |
 | MCP-Werkzeuge fehlen in Claude Code | Studio offen? MCP-Server in Studio eingeschaltet? Claude Code danach neu gestartet? `claude mcp list` zeigt den Status |
-| Typprüfung meldet massenhaft „Unknown global" | Typdefinitionen fehlen: `check_projekt.py` lädt sie beim ersten Lauf (Internet nötig) nach `~/.roblox-spiele/` |
+| Typprüfung meldet massenhaft „Unknown global" | Typdefinitionen fehlen: `check_projekt.py` lädt sie beim ersten Lauf (Internet nötig) nach `~/.roblox-dev/` |
 
 ## Den Skill selbst auf einen anderen Rechner bringen
 
-Der Skill ist ein normaler Ordner. Auf dem Zielrechner nach `%USERPROFILE%\.claude\skills\roblox-spiele` (Windows) bzw. `~/.claude/skills/roblox-spiele` (macOS) kopieren oder dorthin klonen. Claude Code neu starten.
+Der Skill ist ein normaler Ordner. Auf dem Zielrechner nach `%USERPROFILE%\.claude\skills\roblox-dev` (Windows) bzw. `~/.claude/skills/roblox-dev` (macOS) kopieren oder dorthin klonen. Claude Code neu starten.

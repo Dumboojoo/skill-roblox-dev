@@ -33,7 +33,7 @@ import urllib.request
 from pathlib import Path
 
 DEFS_URL = "https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/scripts/globalTypes.d.luau"
-CACHE_DIR = Path.home() / ".roblox-spiele"
+CACHE_DIR = Path.home() / ".roblox-dev"
 DEFS_FILE = CACHE_DIR / "globalTypes.d.luau"
 EXCLUDED_PARTS = ("Packages",)
 
@@ -174,7 +174,7 @@ def ensure_definitions() -> Path | None:
         return DEFS_FILE
     try:
         CACHE_DIR.mkdir(parents=True, exist_ok=True)
-        request = urllib.request.Request(DEFS_URL, headers={"User-Agent": "roblox-spiele-check"})
+        request = urllib.request.Request(DEFS_URL, headers={"User-Agent": "roblox-dev-check"})
         with urllib.request.urlopen(request, timeout=60) as response:
             DEFS_FILE.write_bytes(response.read())
         return DEFS_FILE

@@ -1,4 +1,4 @@
-# roblox-spiele
+# roblox-dev
 
 Ein Skill für Claude Code: Claude entwickelt Roblox-Spiele wie ein professioneller Roblox-Entwickler.
 
@@ -24,15 +24,15 @@ Den Ordner in den Skill-Ordner von Claude Code legen.
 
 **Windows (PowerShell):**
 ```
-git clone <adresse-dieses-repositories> "$env:USERPROFILE\.claude\skills\roblox-spiele"
+git clone <adresse-dieses-repositories> "$env:USERPROFILE\.claude\skills\roblox-dev"
 ```
 
 **macOS / Linux:**
 ```
-git clone <adresse-dieses-repositories> ~/.claude/skills/roblox-spiele
+git clone <adresse-dieses-repositories> ~/.claude/skills/roblox-dev
 ```
 
-Ohne git: Ordner als ZIP herunterladen und nach `.claude\skills\roblox-spiele` im Benutzerordner entpacken (die Datei `SKILL.md` muss direkt in diesem Ordner liegen). Danach Claude Code neu starten.
+Ohne git: Ordner als ZIP herunterladen und nach `.claude\skills\roblox-dev` im Benutzerordner entpacken (die Datei `SKILL.md` muss direkt in diesem Ordner liegen). Danach Claude Code neu starten.
 
 ## Benutzen
 

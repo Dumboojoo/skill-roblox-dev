@@ -1,5 +1,5 @@
 ---
-name: roblox-spiele
+name: roblox-dev
 description: Entwickelt Roblox-Spiele wie ein professioneller Roblox-Entwickler – saubere Rojo-Projektstruktur, erweiterbarer Luau-Code, sicheres Speichern (DataStore), Admin-Konsole auf Taste T, faire Spiele ohne Pay-to-Win, Weltbau direkt in Roblox Studio über MCP, eigene 3D-Modelle und Figuren mit beweglichen Körperteilen aus Blender, Texturen und gezeichnete Effekte (PhotoCraft) und ein Abhak-Plan (PLAN.md). Enthält Beispielcode für 14 Genres (Ego-Shooter, Obby, Tower Defense, Simulator, Tycoon, Minispiele, RPG, Horror, Rennen, Open World, Dungeon, Survival, Battlegrounds, Adventure) sowie Module für Inventar, Monetarisierung und Bestenlisten. Verwende diesen Skill IMMER, wenn es um Roblox geht – neues Spiel bauen, an einem bestehenden weiterarbeiten, Luau-Skripte, Roblox Studio, Rojo, DataStores, Gamepässe, Maps, Modelle, Texturen oder Effekte – auch bei knappen Formulierungen wie „mach mir ein Roblox-Spiel", „bau einen Obby", „mein Tycoon speichert nicht" oder „mach mir ein Monster in Blender".
 ---
 
@@ -63,7 +63,7 @@ Gibt es im Arbeitsordner schon ein Spielprojekt (`default.project.json` und `PLA
 
 Gibt es noch keins, lege eins an (Schritt 2).
 
-Die Skripte unter `scripts/` liegen im Ordner dieses Skills, nicht im Spielprojekt. Ruf sie mit dem vollen Pfad des Skill-Ordners auf (unter Windows meist `%USERPROFILE%\.claude\skills\roblox-spiele\scripts\…`).
+Die Skripte unter `scripts/` liegen im Ordner dieses Skills, nicht im Spielprojekt. Ruf sie mit dem vollen Pfad des Skill-Ordners auf (unter Windows meist `%USERPROFILE%\.claude\skills\roblox-dev\scripts\…`).
 
 Prüfe bei der ersten Arbeit auf einem Rechner einmal die Werkzeuge: `python scripts/einrichtung_pruefen.py` (auf macOS `python3`). Fehlt etwas, hilf dem Nutzer mit `references/einrichtung.md` – und arbeite an allem weiter, was ohne das fehlende Teil geht.
 
