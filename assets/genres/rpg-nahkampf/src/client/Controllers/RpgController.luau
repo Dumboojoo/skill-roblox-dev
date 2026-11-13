@@ -25,6 +25,7 @@ local Format = require(Shared.Util.Format)
 local Formulas = require(Shared.Rpg.Formulas)
 local Net = require(Shared.Net)
 local Kit = require(script.Parent.Parent.UI.Kit)
+local EffectController = require(script.Parent.EffectController)
 local SoundController = require(script.Parent.SoundController)
 local DataController = require(script.Parent.DataController)
 
@@ -109,6 +110,7 @@ end
 
 local function showDamage(position: Vector3, amount: number)
 	SoundController:PlayAt("Hit", position)
+	EffectController:Play("Hit", position)
 	local anchor = Instance.new("Part")
 	anchor.Anchored = true
 	anchor.CanCollide = false

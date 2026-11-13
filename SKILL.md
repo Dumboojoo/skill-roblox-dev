@@ -1,6 +1,6 @@
 ---
 name: roblox-spiele
-description: Entwickelt Roblox-Spiele wie ein professioneller Roblox-Entwickler – saubere Rojo-Projektstruktur, erweiterbarer Luau-Code, sicheres Speichern (DataStore über ProfileStore), Admin-Konsole auf Taste T (fly, god, invisible …), faire Spiele ohne Pay-to-Win, Weltbau direkt in Roblox Studio über MCP und ein Abhak-Plan (PLAN.md), der immer mitgeführt wird. Enthält fertigen Beispielcode für Ego-Shooter (Block-Arme), Obby, Tower Defense, Simulator, Tycoon, Runden-/Minispiele, RPG/Nahkampf, Horror/Story, Rennen/Fahrzeuge, Open World, Dungeon, Survival/Crafting, Battlegrounds und Adventure sowie Module für Inventar, Monetarisierung und Bestenlisten. Verwende diesen Skill IMMER, wenn es um Roblox geht – ein neues Roblox-Spiel bauen, an einem bestehenden weiterarbeiten, Luau-Skripte schreiben oder reparieren, Roblox Studio, Rojo, DataStores, Gamepässe, Admin-Befehle, Maps oder Spielmechaniken für Roblox – auch bei knappen Formulierungen wie „mach mir ein Roblox-Spiel", „bau einen Obby", „mein Tycoon speichert nicht", „füg einen Shop hinzu" oder „mach am Spiel weiter".
+description: Entwickelt Roblox-Spiele wie ein professioneller Roblox-Entwickler – saubere Rojo-Projektstruktur, erweiterbarer Luau-Code, sicheres Speichern (DataStore über ProfileStore), Admin-Konsole auf Taste T (fly, god, invisible …), faire Spiele ohne Pay-to-Win, Weltbau direkt in Roblox Studio über MCP, eigene 3D-Modelle und Figuren mit einzeln beweglichen Körperteilen aus Blender, Texturen (Blender, PhotoCraft), Effekte (Partikel, Bildfolgen) und ein Abhak-Plan (PLAN.md), der immer mitgeführt wird. Enthält fertigen Beispielcode für Ego-Shooter (Block-Arme), Obby, Tower Defense, Simulator, Tycoon, Runden-/Minispiele, RPG/Nahkampf, Horror/Story, Rennen/Fahrzeuge, Open World, Dungeon, Survival/Crafting, Battlegrounds und Adventure sowie Module für Inventar, Monetarisierung und Bestenlisten. Verwende diesen Skill IMMER, wenn es um Roblox geht – ein neues Roblox-Spiel bauen, an einem bestehenden weiterarbeiten, Luau-Skripte schreiben oder reparieren, Roblox Studio, Rojo, DataStores, Gamepässe, Admin-Befehle, Maps, Spielmechaniken, Modelle, Texturen oder Effekte für Roblox – auch bei knappen Formulierungen wie „mach mir ein Roblox-Spiel", „bau einen Obby", „mein Tycoon speichert nicht", „füg einen Shop hinzu", „mach mir ein Monster in Blender", „der Treffer braucht einen Effekt" oder „mach am Spiel weiter".
 ---
 
 # Roblox-Spiele entwickeln
@@ -22,6 +22,10 @@ Lies nie den ganzen Skill. Öffne genau die Dateien für die aktuelle Aufgabe. W
 | Spielstand ändern, Felder umbauen, Datenverlust untersuchen | `references/daten.md` |
 | Admin-Befehl hinzufügen, Rechte ändern | `references/admin-konsole.md` |
 | Welt, Map oder Level bauen | `references/weltbau.md` + Welt-Vertrag in der Genre-Referenz |
+| Eigenes 3D-Modell, Figur mit beweglichen Teilen (Blender) | `references/modelle-blender.md` |
+| Textur backen, Bild bearbeiten (Blender, PhotoCraft) | `references/texturen-photocraft.md` |
+| Effekt für Treffer, Schuss, Explosion, Strahl, Spur; Effekt-Bilder zeichnen | `references/effekte.md` |
+| Blender, PhotoCraft oder das Hochladen einrichten | `references/kreativ-einrichtung.md` |
 | In Studio testen, Fehler suchen | `references/studio-mcp.md` |
 | Spielgefühl, UI, Handy, Leistung, Sicherheit prüfen | `references/qualitaet.md` |
 | Inventar oder Bestenliste einbauen | `references/module.md` |
@@ -110,6 +114,8 @@ Ausführlich mit Beispielen in `references/architektur.md`. Die Kurzfassung, die
 - **Welt und Code sind über Tags und Attribute verbunden** (`shared/Util/World`), nie über feste Pfade wie `Workspace.Map.Tür3`. So kann die Welt umgebaut werden, ohne dass Code bricht.
 - **UI entsteht im Code** mit `client/UI/Kit` (einheitliche Farben, Schrift, Skalierung für Handy).
 - **Töne über den `SoundController`**, Ids in `Config/Sounds.luau` (leer = still). So gilt die Lautstärke aus den Einstellungen des Spielers überall.
+- **Effekte über den `EffectController`**, beschrieben als Tabelle in `Config/Effects.luau`; Bild-Nummern in `Config/AssetIds.luau` (leer = Standard-Partikel).
+- **Figuren aus Einzelteilen bewegen sich über den Tag `AnimatedRig`** (`RigAnimationController`, Rechnung in `shared/Util/RigMotion`), ohne Animationsdatei.
 - **`--!strict`** in jeder Datei, `task.wait` statt `wait`, Aufräumen mit `Trove`.
 - **Reine Logik** (Formeln, Parser, Zufallstabellen) in eigene Module ohne `game`/`script` legen und in `tests/` absichern.
 - **Jedes Feature bringt eigene Admin-Befehle zum Testen mit** (`server/Admin/Commands/`), z. B. Geld geben, Welle überspringen.
@@ -120,7 +126,10 @@ Ausführlich mit Beispielen in `references/architektur.md`. Die Kurzfassung, die
 | | Werkzeug | Warum |
 |---|---|---|
 | Code (Luau) | Dateien im Projekt, Rojo überträgt | versionierbar, prüfbar, saubere Struktur |
-| Welt, Licht, Modelle | direkt in Studio über MCP (`execute_luau`, `generate_*`, `insert_asset`) | liegt in der Place-Datei, Nutzer kann von Hand weiterbauen |
+| Welt, Licht, Block-Modelle | direkt in Studio über MCP (`execute_luau`, `generate_*`, `insert_asset`) | liegt in der Place-Datei, Nutzer kann von Hand weiterbauen |
+| Eigene 3D-Modelle, Texturen backen, Effekt-Bilder mit Tiefe | Blender über die Blender-Verbindung, mit den Helfern in `assets/kreativ/blender/` | Formen, die Blöcke nicht können; Export nach `<spiel>/export/` |
+| Effekte in Schichten zeichnen, Bilder bearbeiten | PhotoCraft (frei, mit eingebauter Verbindung zu Claude; freiwillig) | Formen aus Punktlisten, Ebenen, Filter; jede Schicht ein eigenes weißes Bild |
+| Einfache Effekt-Bilder, Bilder prüfen | `scripts/effekt_textur.py` (`--pruefen`) | läuft überall, ohne Zusatzprogramme |
 | Testen | MCP (`start_stop_play`, `get_console_output`, `screen_capture`, Eingaben) | nur ein echter Spieltest zeigt, ob es funktioniert |
 
 **Skripte nie über MCP ändern** (`multi_edit` auf Skripte im Rojo-Baum): Rojo überschreibt sie beim nächsten Sync, und die Änderung fehlt in den Dateien. Umgekehrt verwaltet Rojo `Workspace` und `Lighting` nicht, damit die gebaute Welt erhalten bleibt.
@@ -128,6 +137,19 @@ Ausführlich mit Beispielen in `references/architektur.md`. Die Kurzfassung, die
 Nach dem Bauen der Welt `save_place` aufrufen. Vor dem Spieltest den Welt-Vertrag prüfen (`assets/weltbau/vertrag_pruefen.luau`).
 
 Ist das MCP nicht verbunden: sag es klar, arbeite am Code weiter und gib dem Nutzer eine genaue Liste, was in Studio zu setzen ist (Teil, Tag, Attribute). Behaupte nie, etwas getestet zu haben, das du nicht ausführen konntest.
+
+## Eigene Modelle, Texturen und Effekte
+
+Blender, PhotoCraft und das Hochladen sind freiwillige Erweiterungen (`references/kreativ-einrichtung.md`). Vier Regeln gelten immer:
+
+- **Erst Blöcke und Spielgefühl, dann eigene Modelle.** Ein Modell ersetzt später einen Block, der schon funktioniert. Der Code der Genres sucht eigene Modelle an festen Stellen und nimmt sonst die Block-Version.
+- **Was sich bewegen soll, besteht aus Einzelteilen.** Monster, Tiere, Türen, Geschütze: jedes bewegliche Teil ein eigenes Objekt mit dem Drehpunkt am Gelenk, sprechend benannt (`Torso`, `Head`, `LeftUpperArm`, `Tail1`). So lässt sich in Roblox jedes Körperteil einzeln bewegen, per Code oder im Animations-Editor. Die Gelenke baut `assets/weltbau/rig_bauen.luau` aus dem Begleitzettel des Exports.
+- **Vor jedem Hochladen fragen.** Hochgeladenes bleibt dauerhaft im Roblox-Konto des Nutzers und wird von Roblox geprüft. Zeig, was hochgeladen wird, und warte auf ein Ja.
+- **Ansehen statt annehmen.** Jedes Modell und jedes Bild vor dem Export ansehen (Bild der 3D-Ansicht, Vorschau-Datei), nach dem Einbau in Studio noch einmal (`screen_capture`).
+
+Effekt-Bilder sind **weiß und in Schichten** (Schein, Körper, Rand, Kern); die Farbe bekommt jede Schicht erst im Spiel. Nichts zeichnen, was wie Blut aussieht.
+
+Fehlt ein Programm oder eine Verbindung: in einem Satz sagen und den Weg nehmen, der geht (Blöcke statt Modell, Zeichen-Skript statt Blender oder PhotoCraft).
 
 ## Qualität für den Spieler
 

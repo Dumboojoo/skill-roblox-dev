@@ -27,6 +27,7 @@ local Net = require(Shared.Net)
 local PathMath = require(Shared.TowerDefense.PathMath)
 local World = require(Shared.Util.World)
 local Kit = require(script.Parent.Parent.UI.Kit)
+local EffectController = require(script.Parent.EffectController)
 local SoundController = require(script.Parent.SoundController)
 
 type EnemyVisual = {
@@ -187,6 +188,7 @@ local function showShot(uid: number, enemyId: number)
 	local from, to = top.Position, enemy.Part.Position
 	local length = (to - from).Magnitude
 	SoundController:PlayAt("Shot", from, 0.6)
+	EffectController:Play("Impact", to, from - to, 0.8)
 	top.CFrame = CFrame.lookAt(top.Position, Vector3.new(to.X, top.Position.Y, to.Z))
 	local beam = inertPart("Shot", folder)
 	beam.Material = Enum.Material.Neon

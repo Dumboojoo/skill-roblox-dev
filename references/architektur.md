@@ -2,7 +2,7 @@
 
 Wie ein Spielprojekt aufgebaut ist und wie man es erweitert, ohne Bestehendes anzufassen.
 
-**Inhalt:** Ordner · Service und Controller · Reihenfolge beim Start · Net · Check · Config · World · UI-Kit · Ton und Einstellungen · Hilfsmodule · Tests · Stilregeln · Rezepte
+**Inhalt:** Ordner · Service und Controller · Reihenfolge beim Start · Net · Check · Config · World · UI-Kit · Ton und Einstellungen · Effekte und bewegte Figuren · Hilfsmodule · Tests · Stilregeln · Rezepte
 
 ## Ordner
 
@@ -22,7 +22,7 @@ src/
 └── shared/                  → ReplicatedStorage.Shared    (Server und Client)
     ├── Config/              Einstellungen und Inhalte als Tabellen
     │   └── DataSections/    Spielstand-Abschnitte je Feature
-    ├── Util/                Signal, Trove, Spring, Format, TablePath, Check, World, CommandParser
+    ├── Util/                Signal, Trove, Spring, Format, TablePath, Check, World, CommandParser, RigMotion
     ├── Net.luau             Kommunikation
     └── Loader.luau          lädt Services/Controller
 tests/                       Tests für reine Logik (lune) und für Namen von Remotes und Spielstand-Pfaden
@@ -153,6 +153,21 @@ Von selbst klingen: jeder `Kit.Button` (`Click`) und jede Meldung (`Notify`, `Su
 
 Das Einstellungs-Fenster (`SettingsController`, Knopf „Menü" am linken Rand oder Taste P) zeigt, was in `GameConfig.Settings.Entries` steht. Zahlen erscheinen als Regler von 0 bis 100 %, Wahrheitswerte als Schalter. Neue Einstellung: Feld in `DataSections/Core.luau` unter `Settings` anlegen, in `Entries` eintragen, im eigenen Controller mit `DataController:Observe("Settings.<Feld>", …)` anwenden. Der `SettingsService` nimmt nur eingetragene Felder an. Bekommt das Spiel ein eigenes Hauptmenü: `ShowButton = false` und `SettingsController:Open()` von dort aufrufen.
 
+## Effekte und bewegte Figuren
+
+Einmalige Effekte (Treffer, Schuss, Explosion, Aufsammeln) stehen als Tabelle in `shared/Config/Effects.luau`; die Bilder dazu als Nummern in `shared/Config/AssetIds.luau` (leer = Standard-Partikel von Roblox, der Effekt ist trotzdem sichtbar).
+
+```lua
+EffectController:Play("Hit", position)                             -- Client
+EffectController:Play("Impact", position, normale, 0.8)            -- mit Richtung und Größe
+EffectController:PlayOn("Heal", teilOderAttachment)                -- bewegt sich mit
+Net.FireNear("Effect.Play", position, 150, "Explosion", position)  -- Server → alle in der Nähe
+```
+
+Neuer Effekt = neuer Eintrag in `Effects.List`. Gestaltung, Bilder und dauerhafte Effekte (Beam, Trail, Fackel): `references/effekte.md`.
+
+Figuren aus Einzelteilen (Gegner, Tiere, Geschütze) bewegt der `RigAnimationController` ohne Animationsdatei: Model mit dem Tag `AnimatedRig`, Teile über `Motor6D` verbunden und sprechend benannt (`Torso`, `Head`, `LeftUpperLeg`, `Tail1` …). Attribute am Model: `Gait`, `Tempo`, `Strength`, `JawOpen`. Die Rechnung steht in `shared/Util/RigMotion.luau` und ist getestet; neue Bewegungen dort ergänzen. Woher solche Figuren kommen: `references/modelle-blender.md`.
+
 ## Hilfsmodule (`shared/Util`)
 
 | Modul | Wofür |
@@ -168,7 +183,7 @@ Das Einstellungs-Fenster (`SettingsController`, Knopf „Menü" am linken Rand o
 
 Logik ohne `game`/`script` (Formeln, Parser, Zufallstabellen, Inventar-Buchhaltung) in eigene Module legen und in `tests/<Name>.spec.luau` absichern; `check_projekt.py` führt sie mit lune aus. Vorlage: `tests/Daten.spec.luau`. In Tests gibt es kein Vector3 und keine Instanzen, deshalb solchen Modulen Zahlen statt Vektoren geben.
 
-Drei Tests bringt jedes Projekt mit, sie prüfen den ganzen Code unter `src/` auf Namen, die nur als Text dastehen und die deshalb keine Typprüfung findet: `Netz.spec.luau` (jedes `Net.Send/Call/Listen` hat sein Gegenstück auf dem Server, gleiche Anzahl Werte), `Spielstand.spec.luau` (jeder benutzte Spielstand-Pfad steht in `Config/DataSections`) und `Ton.spec.luau` (jeder abgespielte Ton steht in `Config/Sounds`). Schlagen sie an, ist fast immer ein Name vertippt.
+Vier Tests bringt jedes Projekt mit, sie prüfen den ganzen Code unter `src/` auf Namen, die nur als Text dastehen und die deshalb keine Typprüfung findet: `Netz.spec.luau` (jedes `Net.Send/Call/Listen` hat sein Gegenstück auf dem Server, gleiche Anzahl Werte), `Spielstand.spec.luau` (jeder benutzte Spielstand-Pfad steht in `Config/DataSections`), `Ton.spec.luau` (jeder abgespielte Ton steht in `Config/Sounds`) und `Effekt.spec.luau` (jeder abgespielte Effekt steht in `Config/Effects`, die Zahlen ergeben Sinn). Schlagen sie an, ist fast immer ein Name vertippt. Dazu kommt `RigMotion.spec.luau` für die Rechnung der Figuren-Bewegung.
 
 ## Stilregeln
 

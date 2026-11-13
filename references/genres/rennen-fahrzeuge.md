@@ -31,7 +31,7 @@ Der Server gibt dem Fahrer den Netzwerk-Besitz am Wagen (nur so lenkt es ohne Ve
 | `RaceCheckpoint` | BasePart | `Order` (1 bis N; höchste = Ziellinie) |
 | `LobbySpawn` | BasePart | – (optional) |
 
-Checkpoints sind unsichtbare Kästen quer über die ganze Fahrbahn, hoch und tief genug, dass man sie nicht verfehlt. Eigenes Auto: `ServerStorage.Assets.Car` (PrimaryPart `Chassis`, enthält einen `VehicleSeat`; Zierteile masselos und ohne Kollision).
+Checkpoints sind unsichtbare Kästen quer über die ganze Fahrbahn, hoch und tief genug, dass man sie nicht verfehlt. Eigenes Auto: `ServerStorage.Assets.Car` (PrimaryPart `Chassis`, enthält einen `VehicleSeat`; Zierteile masselos und ohne Kollision). Karosserie aus Blender: mit `assets/weltbau/modell_einbauen.luau` einbauen (`Anchored = false`, `Collision = "Keine"`) und an `Chassis` schweißen (`references/modelle-blender.md`).
 
 ## Was ein gutes Rennspiel ausmacht
 

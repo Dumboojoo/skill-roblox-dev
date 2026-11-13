@@ -24,7 +24,7 @@ Ein Verfolger, der sieht, hört, jagt und sucht; ein Kapitel aus Zielen (Gegenst
 | `StoryZone` | BasePart | `Zone` (Text) |
 | `Note` | BasePart | `Text` |
 
-Die Tags müssen zur Ziel-Liste in der Config passen (`Item`, `Door`, `Zone`). Eigenes Monster: `ServerStorage.Assets.Chaser`.
+Die Tags müssen zur Ziel-Liste in der Config passen (`Item`, `Door`, `Zone`). Eigenes Monster: `ServerStorage.Assets.Chaser` (Model mit Humanoid, PrimaryPart = HumanoidRootPart). Aus Blender in Einzelteilen bauen und mit `assets/weltbau/rig_bauen.luau` einbauen (`Name = "Chaser"`, `Parent = "ServerStorage.Assets"`); Kiefer, Arme und Schwanz bewegen sich dann von selbst, `JawOpen` öffnet das Maul (`references/modelle-blender.md`).
 
 ## Was guten Horror ausmacht
 

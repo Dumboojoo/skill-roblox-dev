@@ -7,9 +7,11 @@ Geprueft wird:
   - Rokit und die Werkzeuge Rojo, selene, StyLua, luau-lsp, lune
   - Roblox Studio und das Rojo-Plugin
   - der in Studio eingebaute MCP-Server und seine Verbindung zu Claude Code
+  - freiwillig: Blender, PhotoCraft und ihre Verbindungen (eigene Modelle, Texturen, Effekte)
 
 Zu jedem fehlenden Punkt steht direkt dabei, was zu tun ist. Die ausfuehrliche
-Anleitung ist references/einrichtung.md. Rueckgabewert 1, wenn etwas Noetiges fehlt.
+Anleitung ist references/einrichtung.md (Blender und PhotoCraft: references/kreativ-einrichtung.md).
+Rueckgabewert 1, wenn etwas Noetiges fehlt. Freiwilliges zaehlt dabei nie.
 """
 
 from __future__ import annotations
@@ -27,6 +29,7 @@ ROKIT_BIN = HOME / ".rokit" / "bin"
 
 missing_required = 0
 missing_optional = 0
+missing_extra = 0
 
 
 def out(text: str = "") -> None:
@@ -44,6 +47,18 @@ def report(ok: bool, name: str, detail: str = "", fix: str = "", required: bool 
     else:
         missing_optional += 1
         out(f"  [OFFEN]  {name}")
+    for line in fix.splitlines():
+        out(f"           -> {line}")
+
+
+def extra(ok: bool, name: str, detail: str = "", fix: str = "") -> None:
+    """Freiwillige Erweiterung: fehlt sie, ist das kein Mangel."""
+    global missing_extra
+    if ok:
+        out(f"  [OK]     {name}{'  (' + detail + ')' if detail else ''}")
+        return
+    missing_extra += 1
+    out(f"  [--]     {name}")
     for line in fix.splitlines():
         out(f"           -> {line}")
 
@@ -95,8 +110,16 @@ def studio_paths() -> tuple[Path | None, Path | None, Path]:
     return (app if app.exists() else None), (mcp if mcp.exists() else None), HOME / "Documents" / "Roblox" / "Plugins"
 
 
-def mcp_connected() -> bool | None:
-    """True/False, wenn sich die Verbindung pruefen laesst, sonst None."""
+_mcp_listing: str | None = None
+_mcp_checked = False
+
+
+def mcp_listing() -> str | None:
+    """Ausgabe von `claude mcp list` in Kleinbuchstaben, oder None, wenn nicht pruefbar."""
+    global _mcp_listing, _mcp_checked
+    if _mcp_checked:
+        return _mcp_listing
+    _mcp_checked = True
     claude = shutil.which("claude")
     if not claude:
         return None
@@ -106,8 +129,100 @@ def mcp_connected() -> bool | None:
         )
     except (OSError, subprocess.TimeoutExpired):
         return None
-    listing = (result.stdout + result.stderr).lower()
-    return "roblox" in listing
+    _mcp_listing = (result.stdout + result.stderr).lower()
+    return _mcp_listing
+
+
+def mcp_connected(name: str = "roblox") -> bool | None:
+    """True/False, wenn sich die Verbindung pruefen laesst, sonst None."""
+    listing = mcp_listing()
+    return None if listing is None else name in listing
+
+
+def find_blender() -> str | None:
+    found = shutil.which("blender")
+    if found:
+        return found
+    if IS_WINDOWS:
+        roots = [Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "Blender Foundation"]
+        for root in roots:
+            if root.is_dir():
+                for folder in sorted(root.iterdir(), reverse=True):
+                    candidate = folder / "blender.exe"
+                    if candidate.exists():
+                        return str(candidate)
+        return None
+    app = Path("/Applications/Blender.app/Contents/MacOS/Blender")
+    return str(app) if app.exists() else None
+
+
+def find_photocraft() -> str | None:
+    for name in ("photocraft-cli", "photocraft"):
+        found = shutil.which(name)
+        if found:
+            return found
+    if IS_WINDOWS:
+        roots = [
+            Path(os.environ.get("ProgramFiles", r"C:\Program Files")),
+            Path(os.environ.get("LOCALAPPDATA", HOME / "AppData" / "Local")) / "Programs",
+        ]
+        for root in roots:
+            for folder in ("PhotoCraft", "ArtCraft"):
+                if (root / folder).is_dir():
+                    return str(root / folder)
+        return None
+    app = Path("/Applications/PhotoCraft.app")
+    return str(app) if app.exists() else None
+
+
+def check_creative() -> None:
+    out()
+    out("Freiwillig: eigene Modelle, Texturen, Effekte (references/kreativ-einrichtung.md)")
+    blender = find_blender()
+    extra(
+        blender is not None,
+        "Blender (3D-Modelle, Texturen backen)",
+        version(blender) if blender else "",
+        "Installieren: https://www.blender.org/download (4.5 LTS oder neuer)",
+    )
+    uv = shutil.which("uvx") or shutil.which("uv")
+    extra(
+        uv is not None,
+        "uv (startet die Blender-Verbindung)",
+        "",
+        'Windows (PowerShell): powershell -c "irm https://astral.sh/uv/install.ps1 | iex"\n'
+        "Mac: brew install uv",
+    )
+    blender_mcp = mcp_connected("blender")
+    extra(
+        bool(blender_mcp),
+        "Blender-Verbindung in Claude Code",
+        "",
+        "Nicht pruefbar (Befehl 'claude' nicht gefunden)."
+        if blender_mcp is None
+        else "Eintragen: claude mcp add blender uvx blender-mcp\n"
+        "In Blender das Add-on addon.py installieren und im Reiter BlenderMCP verbinden.",
+    )
+    photocraft = find_photocraft()
+    extra(
+        photocraft is not None,
+        "PhotoCraft (Effekte zeichnen, Bilder bearbeiten)",
+        "",
+        "Kostenlos: https://github.com/storytold/photocraft/releases (Windows: die .msi-Datei)",
+    )
+    listing = mcp_listing()
+    photocraft_mcp = None if listing is None else ("photocraft" in listing or "artcraft" in listing)
+    extra(
+        bool(photocraft_mcp),
+        "PhotoCraft-Verbindung in Claude Code",
+        "",
+        "Nicht pruefbar (Befehl 'claude' nicht gefunden)."
+        if photocraft_mcp is None
+        else "Im ArtCraft Launcher: Einstellungen -> AI agents einschalten, neben 'Claude Code' auf Add.\n"
+        "Oder: claude mcp add photocraft -- photocraft-cli mcp --automation-read-root <spiel>/export "
+        "--automation-write-root <spiel>/export",
+    )
+    out("           Effekt-Bilder gehen immer: scripts/effekt_textur.py braucht nur Python.")
 
 
 def main() -> int:
@@ -174,6 +289,8 @@ def main() -> int:
             required=False,
         )
 
+    check_creative()
+
     out()
     if missing_required:
         out(f"Es fehlen {missing_required} noetige Punkte. Ohne sie kann kein Spiel gebaut werden.")
@@ -181,7 +298,9 @@ def main() -> int:
     if missing_optional:
         out(f"Grundlage steht. {missing_optional} Punkt(e) sind noch offen (siehe oben).")
     else:
-        out("Alles eingerichtet.")
+        out("Alles Noetige ist eingerichtet.")
+    if missing_extra:
+        out(f"Freiwillige Erweiterungen: {missing_extra} nicht eingerichtet. Spiele lassen sich auch ohne sie bauen.")
     return 0
 
 

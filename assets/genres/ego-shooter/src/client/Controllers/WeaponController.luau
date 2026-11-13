@@ -26,6 +26,7 @@ local Shared = ReplicatedStorage.Shared
 local Net = require(Shared.Net)
 local Weapons = require(Shared.Config.Weapons)
 local Kit = require(script.Parent.Parent.UI.Kit)
+local EffectController = require(script.Parent.EffectController)
 local SoundController = require(script.Parent.SoundController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 
@@ -101,7 +102,8 @@ local function tracer(from: Vector3, to: Vector3)
 	task.delay(TRACER_TIME, part.Destroy, part)
 end
 
-local function impact(position: Vector3)
+local function impact(position: Vector3, normal: Vector3?)
+	EffectController:Play("Impact", position, normal)
 	local part = Instance.new("Part")
 	part.Anchored = true
 	part.CanCollide = false
@@ -226,7 +228,7 @@ local function fire()
 				-- Nur melden; ob es zählt, entscheidet der Server und antwortet mit Weapon.HitConfirm.
 				table.insert(hits, { result.Instance, result.Position } :: { any })
 			else
-				impact(result.Position)
+				impact(result.Position, result.Normal)
 			end
 		end
 	end

@@ -28,7 +28,7 @@ Schlagen mit Kombo, Ausweichrolle, Gegner mit einfacher KI, Erfahrung und Stufen
 |---|---|---|
 | `EnemySpawn` | BasePart | `Enemy` (Schlüssel aus `Enemies`) |
 
-Eigenes Gegnermodell (optional): `ServerStorage.Assets.Enemies.<Schlüssel>` (Model mit Humanoid, PrimaryPart = HumanoidRootPart).
+Eigenes Gegnermodell (optional): `ServerStorage.Assets.Enemies.<Schlüssel>` (Model mit Humanoid, PrimaryPart = HumanoidRootPart). Aus Blender: Figur in Einzelteilen bauen, mit `assets/weltbau/rig_bauen.luau` einbauen (`Humanoid = true`, `Parent = "ServerStorage.Assets.Enemies"`, `Name` = Schlüssel); mit dem Tag `AnimatedRig` läuft sie von selbst (`references/modelle-blender.md`).
 
 ## Was ein gutes RPG ausmacht
 

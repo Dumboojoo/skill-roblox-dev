@@ -13,6 +13,8 @@ local Net = require(ReplicatedStorage.Shared.Net)
 Net.Declare("Notify")
 -- Töne vom Server aus: Net.Fire("Sound.Play", player, "Coin") – siehe SoundController.
 Net.Declare("Sound.Play")
+-- Effekte vom Server aus: Net.FireNear("Effect.Play", position, 150, "Hit", position) – siehe EffectController.
+Net.Declare("Effect.Play")
 
 local started = os.clock()
 local services = Loader.Load(script.Parent.Services, "Server")

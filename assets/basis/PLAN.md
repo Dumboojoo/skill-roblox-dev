@@ -50,6 +50,18 @@ _Noch offen: Was macht der Spieler in den ersten 30 Sekunden, nach 5 Minuten, na
 - [ ] Töne ausgesucht und in `src/shared/Config/Sounds.luau` eingetragen (Klick, Erfolg, Fehler und die Töne des Genres)
 - [ ] Musik eingetragen; Lautstärke im Einstellungs-Fenster (Taste P) geprüft
 
+## Eigene Assets
+
+_Nur nötig, wenn das Spiel eigene Modelle, Texturen oder Effekt-Bilder bekommt (Blender, PhotoCraft).
+Jeder Upload kommt als Zeile hierher. Vor jedem Hochladen wird gefragt: Es bleibt dauerhaft im Roblox-Konto._
+
+| Name | Art | Quelle (`quellen/`) | Datei (`export/`) | Asset-Nummer | Eingebaut in | Stand |
+|---|---|---|---|---|---|---|
+
+- [ ] Blender-Verbindung geprüft (Würfel bauen, Bild der 3D-Ansicht)
+- [ ] `export/` in Studio für das Hochladen freigegeben, Asset-Rechte eingeschaltet
+- [ ] Effekt-Bilder erzeugt, hochgeladen und in `src/shared/Config/AssetIds.luau` eingetragen
+
 ## Phase 4 – Vor Veröffentlichung
 
 - [ ] Test mit 2 oder mehr Spielern (Studio: Test → Server und Clients)

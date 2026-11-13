@@ -25,6 +25,7 @@ local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config.Battlegrounds)
 local Net = require(Shared.Net)
 local Kit = require(script.Parent.Parent.UI.Kit)
+local EffectController = require(script.Parent.EffectController)
 local SoundController = require(script.Parent.SoundController)
 
 type Slot = { Fill: Frame, Label: TextLabel, ReadyAt: number, Duration: number }
@@ -112,6 +113,7 @@ end
 
 local function showDamage(position: Vector3, amount: number, blocked: boolean)
 	SoundController:PlayAt("Hit", position, if blocked then 0.5 else 1)
+	EffectController:Play("Hit", position, nil, if blocked then 0.6 else 1)
 	local anchor = Instance.new("Part")
 	anchor.Anchored = true
 	anchor.CanCollide = false

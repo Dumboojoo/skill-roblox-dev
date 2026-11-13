@@ -34,7 +34,7 @@ Der Client meldet Start, Richtung und was er getroffen hat. Der Server prüft Fe
 |---|---|
 | `SpawnLocation`s | mindestens eine; bei Teams mit `TeamColor` |
 | Trainingspuppe (optional) | Model mit `Humanoid`; nimmt Schaden wie ein Spieler |
-| Eigenes Waffenmodell (optional) | `ReplicatedStorage.Assets.Weapons.<Id>`, PrimaryPart mit Attachments `Grip`, `Support`, `Muzzle`, `Sight`, `Magazine`; Waffe zeigt nach -Z |
+| Eigenes Waffenmodell (optional) | `ReplicatedStorage.Assets.Weapons.<Id>`, PrimaryPart mit Attachments `Grip`, `Support`, `Muzzle`, `Sight`, `Magazine`; Waffe zeigt nach -Z. Aus Blender: Andockpunkte mit `rig.attachment` setzen, Einbau mit `assets/weltbau/modell_einbauen.luau` (`Anchored = false`, `Collision = "Keine"`), siehe `references/modelle-blender.md` |
 
 ## Was einen guten Shooter ausmacht
 

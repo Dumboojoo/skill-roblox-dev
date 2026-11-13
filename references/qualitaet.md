@@ -19,6 +19,7 @@ Jede Aktion des Spielers bekommt sofort eine Antwort – am besten auf mehreren 
 |---|---|---|
 | Bild | Aufploppen, Aufblitzen, Zahl steigt hoch | `Kit.Pop`, `Kit.Tween`, Schadenszahlen |
 | Ton | Klick, Treffer, Münze, Fehler | `SoundController:Play("Coin")`, in der Welt `:PlayAt(name, position)`, vom Server `Net.Fire("Sound.Play", player, "Coin")`. Töne stehen in `Config/Sounds.luau` (Ids über `search_asset` suchen; leere Id = still). Knöpfe und Meldungen klingen von selbst. |
+| Effekt | Treffer, Schuss, Explosion, Aufsammeln | `EffectController:Play("Hit", position)`, vom Server `Net.FireNear("Effect.Play", position, 150, "Hit", position)`. Effekte stehen in `Config/Effects.luau`, sichtbar auch ohne eigenes Bild. Gestaltung: `references/effekte.md`. |
 | Bewegung | Rückstoß, Kamerawackeln, Federn | `Spring` |
 | Text | „+25", „Checkpoint 4", „Nicht genug Münzen" | `NotificationController:Notify` |
 
